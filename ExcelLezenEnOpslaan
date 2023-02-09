@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+#C:\Users\sjoerd\Desktop
+
+import pandas as pd
+
+df = pd.read_excel(r'C:\Users\sjoerd\Desktop\DataAnalyze_MRI_Groep8CSV.xlsx')
+
+#Data frame info opvragenen printen
+df.info()
+print(df)
+
+
+#x maark variabele met meetpunten
+MagnitBV = df.iloc[2:,1]
+print("----")
+print(MagnitBV)
+
+StronghBV = df.iloc[2:,4]
+print("----")
+print(StronghBV)
+
