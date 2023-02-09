@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+#C:\Users\sjoerd\Desktop
+
+import pandas as pd
+
+df = pd.read_excel(r'C:\Users\sjoerd\Desktop\DataAnalyze_MRI_Groep8CSV.xlsx')
+
+df.info()
+print(df)
+
