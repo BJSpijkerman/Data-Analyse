@@ -46,7 +46,7 @@ mean_magnit = description_magnit[2]
 var_magnit = description_magnit[3]
 skew_magnit = description_magnit[4]
 kurt_magnit = description_magnit[5]
-median_magnit = np.median(magnit)
+median_magnit = np.median(magnit, keepdims=False)
 mode_magnit = stats.mode(magnit)
 IQR_magnit = stats.iqr(magnit)
 
@@ -62,7 +62,7 @@ mean_strongh = description_strongh[2]
 var_strongh = description_strongh[3]
 skew_strongh = description_strongh[4]
 kurt_strongh = description_strongh[5]
-median_strongh = np.median(strongh)
+median_strongh = np.median(strongh, keepdims=False)
 mode_strongh = stats.mode(strongh)
 IQR_strongh = stats.iqr(strongh)
 
@@ -142,4 +142,4 @@ ax5.set_ylabel('Steekproef kwartielen Strongh')
 plt.suptitle('Statisische plots Magnit B.V. & Strongh B.V. meet data')
 fig.tight_layout()
 fig = plt.gcf()
-fig.set_size_inches(20, 9, forward=True)
+fig.set_size_inches(18, 9, forward=True)
