@@ -21,7 +21,22 @@ def calculateOutliers(data, median, IQR, outliers):
         if distance_from_median > 1.5 * IQR:
             outliers.append(data[i])
             
+def calculateConfidenceIntervalMean(x, mean, var, q):
+    n = len(x)
+    stdev = np.sqrt(var)
+    T = stats.t.ppf(q = q, df = n-1, loc=mean, scale=stdev)
+    upper_bound = mean + T * stdev / np.sqrt(n)
+    lower_bound = mean - T * stdev / np.sqrt(n)
+    return upper_bound, lower_bound
 
+
+def calculateCofidenceIntervalVariance(data, var, q):
+    k = len(data) - 1
+    CHI2_l = stats.chi2.ppf(q = q, df = k)
+    CHI2_r = stats.chi2.ppf(q = 1-q, df = k)
+    lower_bound = (k * var) / CHI2_r
+    upper_bound = (k * var) / CHI2_l
+    return upper_bound, lower_bound
 
 
 # Load data
@@ -35,8 +50,10 @@ index_magnit = magnitDat['Meting [#]'].to_numpy(dtype='float')
 strongh = stronghDat['Magnetische fluxdichtheid [T]'].to_numpy(dtype='float')
 index_strongh = stronghDat['Meting [#]'].to_numpy(dtype='float')
 
+n_magnit = len(magnit)
+n_strongh = len(strongh)
 
-# Calculate: min/max, mean, variance, skewness, kurtosis, median, mode and inter quartile range
+# Calculate: min/max, range, mean, variance, skewness, kurtosis, median, mode and inter quartile range
 description_magnit = stats.describe(magnit)
 
 number_of_measurements_magnit = description_magnit[0]
@@ -69,6 +86,15 @@ mode_strongh = stats.mode(strongh)
 IQR_strongh = stats.iqr(strongh)
 
 
+# Calculate regression of data sets vs measurement index
+m_magnit, b_magnit, r_magnit, p_magnit, se_magnit = stats.linregress(index_magnit, magnit)
+magnit_predict = m_magnit * index_magnit + b_magnit
+
+m_strongh, b_strongh, r_strongh, p_strongh, se_strongh =  stats.linregress(index_strongh, strongh)
+strongh_predict = m_strongh * index_strongh + b_strongh
+
+
+
 # Calculate outliers from IQR
 outliers_magnit = []
 calculateOutliers(magnit, median_magnit, IQR_magnit, outliers_magnit)
@@ -87,8 +113,28 @@ coefficient_of_variance_magnit = stats.variation(magnit)
 coefficient_of_variance_strongh = stats.variation(strongh)
 
 
+# Calculate confidence interval for mean
+upper_bound_mean_magnit, lower_bound_mean_magnit = calculateConfidenceIntervalMean(magnit, mean_magnit, var_magnit, q=0.05)
+width_mean_magnit = upper_bound_mean_magnit - lower_bound_mean_magnit
+
+upper_bound_mean_strongh, lower_bound_mean_strongh = calculateConfidenceIntervalMean(strongh, mean_strongh, var_strongh, q=0.05)
+width_mean_strongh = upper_bound_mean_strongh - lower_bound_mean_strongh
+
+
+# Calculate confidence interval for variance
+upper_bound_var_magnit, lower_bound_var_magnit = calculateCofidenceIntervalVariance(magnit, var_magnit, q=0.05)
+width_var_magnit = upper_bound_var_magnit - lower_bound_var_magnit
+
+upper_bound_var_strongh, lower_bound_var_strongh = calculateCofidenceIntervalVariance(strongh, var_strongh, q=0.05)
+width_var_strongh = upper_bound_var_strongh - lower_bound_var_strongh
+
+
+# Test for equal variance
+equal_var = stats.bartlett(magnit, strongh)
+
+
 # Test if sample means differ significantly
-diff_mean = stats.ttest_ind(magnit, strongh)
+diff_mean = stats.ttest_ind(magnit, strongh, equal_var=False)
 
 
 # Create plot figure
@@ -107,12 +153,14 @@ ax1.set_ylabel('Magnetic flixdensity [T]')
 
 
 # Create scatter plots for measurement data VS measurementIndex
+ax2.plot(index_magnit, magnit_predict)
 ax2.scatter(index_magnit, magnit)
 
 ax2.set_xlabel('Meting Magnit B.V.')
 ax2.set_ylabel('Magnetisch fluxdichtheid [T]')
 
 
+ax3.plot(index_strongh, strongh_predict)
 ax3.scatter(index_strongh, strongh)
 
 ax3.set_xlabel('Meting Strongh B.V.')
