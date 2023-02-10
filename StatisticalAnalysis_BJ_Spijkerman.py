@@ -81,8 +81,8 @@ P_value_strongh = stats.normaltest(strongh)
 
 
 # Calculate coëfficient of variance
-CoefficientOfVariance_magnit = stats.variation(magnit)
-CoefficientOfVariance_strongh = stats.variation(strongh)
+coefficient_of_variance_magnit = stats.variation(magnit)
+coefficient_of_variance_strongh = stats.variation(strongh)
 
 
 # Test if sample means differ significantly
