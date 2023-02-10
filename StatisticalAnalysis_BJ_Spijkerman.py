@@ -20,6 +20,8 @@ def calculateOutliers(data, median, IQR, outliers):
         distance_from_median = np.absolute(median - data[i])
         if distance_from_median > 1.5 * IQR:
             outliers.append(data[i])
+            
+
 
 
 # Load data
@@ -76,8 +78,8 @@ calculateOutliers(strongh, median_strongh, IQR_strongh, outliers_strongh)
 
 
 # Test for normal distribution
-P_value_magnit = stats.normaltest(magnit)
-P_value_strongh = stats.normaltest(strongh)
+P_value_magnit = stats.anderson(magnit, dist='norm')
+P_value_strongh = stats.anderson(strongh, dist='norm')
 
 
 # Calculate coëfficient of variance
@@ -90,7 +92,7 @@ diff_mean = stats.ttest_ind(magnit, strongh)
 
 
 # Create plot figure
-fig, ([ax, ax1], [ax2, ax3], [ax4, ax5]) = plt.subplots(nrows=3, ncols=2)
+fig, ([ax, ax1], [ax2, ax3], [ax4, ax5], [ax6, ax7]) = plt.subplots(nrows=4, ncols=2)
 
 # Make boxplots, with 1.5 IQD outliers included
 ax.boxplot(magnit)
@@ -136,6 +138,14 @@ ax5.scatter(QQscatter_strongh[0], QQscatter_strongh[1])
 
 ax5.set_xlabel('Theoretische kwartielen Strongh')
 ax5.set_ylabel('Steekproef kwartielen Strongh')
+
+
+ax6.hist(magnit)
+ax6.set_xlabel('Magnit B.V.')
+
+
+ax7.hist(strongh)
+ax7.set_xlabel('Strongh B.V.')
 
 
 # Format plot area
