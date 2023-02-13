@@ -6,6 +6,36 @@ Created on Thu Feb  9 14:50:50 2023
 
 Statistical analysis of magnetic fluxdensity in magnets from Magnit B.V.
 and Strongh B.V.
+
+Includes basic statistics:
+    
+    number of measurements
+    smalest measurement
+    largests measurement
+    range of measurements
+    mean
+    variance
+    skewness
+    kurtosis
+    median
+    mode 
+    inter quartlie range
+    
+Regression between measurements and index
+
+Outliers calculated withing the whiskerplot and the 1.5 IQR criterion
+
+Anderson-Darling test for normality
+
+Coëfficient of variance
+
+confidence bounds/ range for mean and variance calculated by normal dist and chi-squared dist
+
+Bartletts test for equal variance
+
+t-test difference in sample means
+
+
 """
 
 # Import packages
@@ -14,6 +44,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
+
+def belCurve(x):
+    mean = np.mean(x)
+    std = np.std(x)
+    MIN = min(x)
+    MAX = max(x)
+    x = np.linspace(MIN, MAX, 100)
+    y_out = 1/(std * np.sqrt(2 * np.pi)) * np.exp( - (x - mean)**2 / (2 * std**2))
+    return y_out, x
 
 def calculateOutliers(data, median, IQR, outliers):
     for i in range(len(data)):
@@ -65,8 +104,8 @@ mean_magnit = description_magnit[2]
 var_magnit = description_magnit[3]
 skew_magnit = description_magnit[4]
 kurt_magnit = description_magnit[5]
-median_magnit = np.median(magnit, keepdims=False)
-mode_magnit = stats.mode(magnit)
+median_magnit = np.median(magnit)
+mode_magnit = stats.mode(magnit, keepdims=False)
 IQR_magnit = stats.iqr(magnit)
 
 
@@ -81,8 +120,8 @@ mean_strongh = description_strongh[2]
 var_strongh = description_strongh[3]
 skew_strongh = description_strongh[4]
 kurt_strongh = description_strongh[5]
-median_strongh = np.median(strongh, keepdims=False)
-mode_strongh = stats.mode(strongh)
+median_strongh = np.median(strongh)
+mode_strongh = stats.mode(strongh, keepdims=False)
 IQR_strongh = stats.iqr(strongh)
 
 
@@ -92,7 +131,6 @@ magnit_predict = m_magnit * index_magnit + b_magnit
 
 m_strongh, b_strongh, r_strongh, p_strongh, se_strongh =  stats.linregress(index_strongh, strongh)
 strongh_predict = m_strongh * index_strongh + b_strongh
-
 
 
 # Calculate outliers from IQR
@@ -153,14 +191,14 @@ ax1.set_ylabel('Magnetic flixdensity [T]')
 
 
 # Create scatter plots for measurement data VS measurementIndex
-ax2.plot(index_magnit, magnit_predict)
+ax2.plot(index_magnit, magnit_predict, color='#FBB80F')
 ax2.scatter(index_magnit, magnit)
 
 ax2.set_xlabel('Meting Magnit B.V.')
 ax2.set_ylabel('Magnetisch fluxdichtheid [T]')
 
 
-ax3.plot(index_strongh, strongh_predict)
+ax3.plot(index_strongh, strongh_predict, color='#FBB80F')
 ax3.scatter(index_strongh, strongh)
 
 ax3.set_xlabel('Meting Strongh B.V.')
@@ -188,16 +226,26 @@ ax5.set_xlabel('Theoretische kwartielen Strongh')
 ax5.set_ylabel('Steekproef kwartielen Strongh')
 
 
+# Create histograms
+magnitBel, X_magnit = belCurve(magnit)
+MAX_magnit = max(magnitBel)
+magnitBel = magnitBel * 4 / MAX_magnit
+
 ax6.hist(magnit)
 ax6.set_xlabel('Magnit B.V.')
+ax6.plot(X_magnit, magnitBel, color='#FBB80F')
 
+stronghBel, X_strongh = belCurve(strongh)
+MAX_strongh = max(stronghBel)
+stronghBel = stronghBel * 3 / MAX_strongh
 
 ax7.hist(strongh)
 ax7.set_xlabel('Strongh B.V.')
+ax7.plot(X_strongh, stronghBel, color='#FBB80F')
 
 
 # Format plot area
 plt.suptitle('Statisische plots Magnit B.V. & Strongh B.V. meet data')
 fig.tight_layout()
 fig = plt.gcf()
-fig.set_size_inches(18, 9, forward=True)
+fig.set_size_inches(9, 9, forward=True)
